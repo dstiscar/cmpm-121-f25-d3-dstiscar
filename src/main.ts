@@ -5,7 +5,7 @@ import luck from "./_luck.ts";
 import "./style.css";
 
 const mapDiv = document.createElement("div");
-mapDiv.id = "map";import "./_leafletWorkaround.ts";
+mapDiv.id = "map";
 document.body.append(mapDiv);
 
 const CLASSROOM_LATLNG = leaflet.latLng(
@@ -48,6 +48,16 @@ function spawnCache(i: number, j: number) {
 
   const rect = leaflet.rectangle(bounds);
   rect.addTo(map);
+
+  rect.bindPopup(() => {
+    const pointValue =
+      Math.floor(luck([i, j, "initialValue"].toString()) * 100) % 5 + 1;
+
+    const popupDiv = document.createElement("div");
+    popupDiv.innerHTML = `
+                <div>This cell is carrying a token of <span id="value">${pointValue}</span>.</div>`;
+    return popupDiv;
+  });
 }
 
 for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; i++) {
