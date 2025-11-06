@@ -12,6 +12,8 @@ const CLASSROOM_LATLNG = leaflet.latLng(
 );
 
 const GAMEPLAY_ZOOM_LEVEL = 19;
+const TILE_DEGREES = 1e-4;
+const NEIGHBORHOOD_SIZE = 8;
 
 const map = leaflet.map(mapDiv, {
   center: CLASSROOM_LATLNG,
@@ -33,3 +35,16 @@ leaflet
 const playerMarker = leaflet.marker(CLASSROOM_LATLNG);
 playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
+
+function spawnCache(i: number, j: number) {
+  const origin = CLASSROOM_LATLNG;
+  const bounds = leaflet.latLngBounds([
+    [origin.lat + i * TILE_DEGREES, origin.lng + j * TILE_DEGREES],
+    [origin.lat + (i + 1) * TILE_DEGREES, origin.lng + (j + 1) * TILE_DEGREES],
+  ]);
+
+  const rect = leaflet.rectangle(bounds);
+  rect.addTo(map);
+}
+
+spawnCache(NEIGHBORHOOD_SIZE, NEIGHBORHOOD_SIZE);
