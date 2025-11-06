@@ -8,6 +8,10 @@ const mapDiv = document.createElement("div");
 mapDiv.id = "map";
 document.body.append(mapDiv);
 
+const statusPanelDiv = document.createElement("div");
+statusPanelDiv.id = "statusPanel";
+document.body.append(statusPanelDiv);
+
 const CLASSROOM_LATLNG = leaflet.latLng(
   36.997936938057016,
   -122.05703507501151,
@@ -39,6 +43,9 @@ const playerMarker = leaflet.marker(CLASSROOM_LATLNG);
 playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
 
+let playerValue = 0;
+statusPanelDiv.innerHTML = "";
+
 function spawnCache(i: number, j: number) {
   const origin = CLASSROOM_LATLNG;
   const bounds = leaflet.latLngBounds([
@@ -46,16 +53,31 @@ function spawnCache(i: number, j: number) {
     [origin.lat + (i + 1) * TILE_DEGREES, origin.lng + (j + 1) * TILE_DEGREES],
   ]);
 
+  let pointValue =
+      Math.floor(luck([i, j, "initialValue"].toString()) * 100) % 10 + 1;
+
   const rect = leaflet.rectangle(bounds);
   rect.addTo(map);
 
   rect.bindPopup(() => {
-    const pointValue =
-      Math.floor(luck([i, j, "initialValue"].toString()) * 100) % 5 + 1;
+    
 
     const popupDiv = document.createElement("div");
-    popupDiv.innerHTML = `
-                <div>This cell is carrying a token of <span id="value">${pointValue}</span>.</div>`;
+    popupDiv.innerHTML = `<div>This cell is carrying a token of <span id="value">${pointValue}</span>.</div><button id="poke">poke</button>`;
+
+    popupDiv
+      .querySelector<HTMLButtonElement>("#poke")!
+      .addEventListener("click", () => {
+        const temp = playerValue;
+        playerValue = pointValue;
+        pointValue = temp;
+
+        popupDiv.querySelector<HTMLSpanElement>("#value")!.innerHTML =
+          pointValue.toString();
+        statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
+        
+      });
+    
     return popupDiv;
   });
 }

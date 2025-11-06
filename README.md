@@ -26,7 +26,7 @@ Key gameplay challenge: Can players collect and craft tokens from nearby locatio
 - [x] draw a rectangle representing one cell on the map
 - [x] use loops to draw a whole grid of cells on the map
 - [x] have cells display the value of the token they're carrying
-- [ ] add option to trade token to player
-- [ ] add text for whenever the player is carrying a token
+- [x] add option to trade token to player
+- [x] add text for whenever the player is carrying a token
 - [ ] add feature to combine tokens with matching value
 - [ ] signal the player if there are any tokens of matching value
