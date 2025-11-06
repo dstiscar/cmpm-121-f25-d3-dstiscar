@@ -54,16 +54,15 @@ function spawnCache(i: number, j: number) {
   ]);
 
   let pointValue =
-      Math.floor(luck([i, j, "initialValue"].toString()) * 100) % 10 + 1;
+    Math.floor(luck([i, j, "initialValue"].toString()) * 100) % 10 + 1;
 
   const rect = leaflet.rectangle(bounds);
   rect.addTo(map);
 
   rect.bindPopup(() => {
-    
-
     const popupDiv = document.createElement("div");
-    popupDiv.innerHTML = `<div>This cell is carrying a token of <span id="value">${pointValue}</span>.</div><button id="poke">poke</button>`;
+    popupDiv.innerHTML =
+      `<div>This cell is carrying a token of <span id="value">${pointValue}</span>.</div><button id="poke">poke</button>`;
 
     popupDiv
       .querySelector<HTMLButtonElement>("#poke")!
@@ -75,9 +74,8 @@ function spawnCache(i: number, j: number) {
         popupDiv.querySelector<HTMLSpanElement>("#value")!.innerHTML =
           pointValue.toString();
         statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
-        
       });
-    
+
     return popupDiv;
   });
 }
