@@ -5,7 +5,7 @@ import luck from "./_luck.ts";
 import "./style.css";
 
 const mapDiv = document.createElement("div");
-mapDiv.id = "map";
+mapDiv.id = "map";import "./_leafletWorkaround.ts";
 document.body.append(mapDiv);
 
 const CLASSROOM_LATLNG = leaflet.latLng(
@@ -15,7 +15,7 @@ const CLASSROOM_LATLNG = leaflet.latLng(
 
 const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
-const NEIGHBORHOOD_SIZE = 8;
+const NEIGHBORHOOD_SIZE = 3;
 const CACHE_SPAWN_PROBABILITY = 0.1;
 
 const map = leaflet.map(mapDiv, {
