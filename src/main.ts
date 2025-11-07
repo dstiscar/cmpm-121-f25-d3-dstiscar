@@ -44,7 +44,7 @@ playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
 
 let playerValue = 0;
-statusPanelDiv.innerHTML = "";
+statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
 
 function spawnCache(i: number, j: number) {
   const origin = CLASSROOM_LATLNG;
@@ -53,27 +53,51 @@ function spawnCache(i: number, j: number) {
     [origin.lat + (i + 1) * TILE_DEGREES, origin.lng + (j + 1) * TILE_DEGREES],
   ]);
 
-  let pointValue =
+  let cellValue =
     Math.floor(luck([i, j, "initialValue"].toString()) * 100) % 10 + 1;
 
   const rect = leaflet.rectangle(bounds);
   rect.addTo(map);
 
   rect.bindPopup(() => {
+    const combine = (cellValue == playerValue) && (cellValue > 0);
+
     const popupDiv = document.createElement("div");
     popupDiv.innerHTML =
-      `<div>This cell is carrying a token of <span id="value">${pointValue}</span>.</div><button id="poke">poke</button>`;
+      `<div>This cell is carrying a token of <span id="value">${cellValue}</span> value.</div><button id="poke">swap</button>`;
+
+    if (cellValue == 0) {
+      popupDiv.querySelector<HTMLButtonElement>("#poke")!.innerHTML = "offer";
+    }
+    if (playerValue == 0) {
+      popupDiv.querySelector<HTMLButtonElement>("#poke")!.innerHTML = "get";
+    }
+    if (combine) {
+      popupDiv.querySelector<HTMLButtonElement>("#poke")!.innerHTML = "combine";
+    }
 
     popupDiv
       .querySelector<HTMLButtonElement>("#poke")!
       .addEventListener("click", () => {
-        const temp = playerValue;
-        playerValue = pointValue;
-        pointValue = temp;
+        if (combine) {
+          playerValue += cellValue;
+          cellValue = 0;
+        } else {
+          const temp = playerValue;
+          playerValue = cellValue;
+          cellValue = temp;
+        }
 
-        popupDiv.querySelector<HTMLSpanElement>("#value")!.innerHTML =
-          pointValue.toString();
         statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
+        if (cellValue == 0) {
+          popupDiv.querySelector<HTMLButtonElement>("#poke")!.innerHTML =
+            "offer";
+        }
+        if (playerValue == 0) {
+          popupDiv.querySelector<HTMLButtonElement>("#poke")!.innerHTML = "get";
+        }
+        popupDiv.querySelector<HTMLSpanElement>("#value")!.innerHTML = cellValue
+          .toString();
       });
 
     return popupDiv;
