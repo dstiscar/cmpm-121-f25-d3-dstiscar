@@ -2,7 +2,7 @@
 
 ## Game Design Vision
 
-{a few-sentence description of the game mechanics}
+Click on a cell to collect its token value or swap it with yours. You can also combine your token value with a matching value.
 
 ## Technologies
 

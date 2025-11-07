@@ -19,7 +19,7 @@ const CLASSROOM_LATLNG = leaflet.latLng(
 
 const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
-const NEIGHBORHOOD_SIZE = 3;
+const NEIGHBORHOOD_SIZE = 4;
 const CACHE_SPAWN_PROBABILITY = 0.1;
 
 const map = leaflet.map(mapDiv, {
@@ -60,7 +60,7 @@ function spawnCache(i: number, j: number) {
   rect.addTo(map);
 
   rect.bindPopup(() => {
-    const combine = (cellValue == playerValue) && (cellValue > 0);
+    let combine = (cellValue == playerValue) && (cellValue > 0);
 
     const popupDiv = document.createElement("div");
     popupDiv.innerHTML =
@@ -82,6 +82,7 @@ function spawnCache(i: number, j: number) {
         if (combine) {
           playerValue += cellValue;
           cellValue = 0;
+          combine = false;
         } else {
           const temp = playerValue;
           playerValue = cellValue;
