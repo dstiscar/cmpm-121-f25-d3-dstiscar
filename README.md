@@ -17,7 +17,7 @@ Click on a cell to collect its token value or swap it with yours. You can also c
 Key technical challenge: Can you assemble a map-based user interface using the Leaflet mapping framework?
 Key gameplay challenge: Can players collect and craft tokens from nearby locations to finally make one of sufficiently high value?
 
-#### Steps
+#### D3.a Steps
 
 - [x] copy main.ts to reference.ts for future reference
 - [x] delete everything in main.ts
@@ -30,3 +30,15 @@ Key gameplay challenge: Can players collect and craft tokens from nearby locatio
 - [x] add text for whenever the player is carrying a token
 - [x] add feature to combine tokens with matching value
 - [x] signal the player if there are any tokens of matching value
+
+### D3.b: Globe-spanning gameplay
+
+Key technical challenge: Can you assemble a keyboard system that moves the player on the map?
+Key gameplay challenge: Can players move around the map to find matching token values more frequently?
+
+#### D3.b Steps
+
+- [x] create a player interface
+- [x] use arrow keys to move player
+- [ ] make cells despawn when out of range
+- [ ] generate new cells when a player moves

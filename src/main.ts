@@ -21,6 +21,19 @@ const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
 const NEIGHBORHOOD_SIZE = 4;
 const CACHE_SPAWN_PROBABILITY = 0.1;
+const MOVE_DEGREES = TILE_DEGREES;
+
+interface Pair {
+  i: number;
+  j: number;
+}
+
+const player: Pair = {
+  i: CLASSROOM_LATLNG.lat,
+  j: CLASSROOM_LATLNG.lng,
+};
+
+//const cells: Pair[];
 
 const map = leaflet.map(mapDiv, {
   center: CLASSROOM_LATLNG,
@@ -112,3 +125,36 @@ for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; i++) {
     }
   }
 }
+
+function updatePlayerMarker() {
+  const latlng = leaflet.latLng(player.i, player.j);
+  playerMarker.setLatLng(latlng);
+  map.panTo(latlng);
+}
+
+globalThis.addEventListener("keydown", (e: KeyboardEvent) => {
+  let handled = true;
+  switch (e.key) {
+    case "ArrowUp":
+      player.i += MOVE_DEGREES;
+      break;
+    case "ArrowDown":
+      player.i -= MOVE_DEGREES;
+      break;
+    case "ArrowLeft":
+    case "a":
+      player.j -= MOVE_DEGREES;
+      break;
+    case "ArrowRight":
+      player.j += MOVE_DEGREES;
+      break;
+    default:
+      handled = false;
+  }
+
+  if (handled) {
+    e.preventDefault();
+    updatePlayerMarker();
+  }
+});
+updatePlayerMarker();
