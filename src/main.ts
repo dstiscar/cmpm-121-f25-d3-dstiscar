@@ -11,6 +11,7 @@ document.body.append(mapDiv);
 const statusPanelDiv = document.createElement("div");
 statusPanelDiv.id = "statusPanel";
 document.body.append(statusPanelDiv);
+document.body.append("Arrow Keys to Move");
 
 const CLASSROOM_LATLNG = leaflet.latLng(
   36.997936938057016,
@@ -76,6 +77,11 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
   const rect = leaflet.rectangle(bounds);
   rect.addTo(map);
 
+  rect.bindTooltip(cellValue.toString(), {
+    permanent: true,
+    direction: "center",
+  });
+
   spawnedCells.push({ key, rect });
 
   rect.bindPopup(() => {
@@ -109,6 +115,7 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
         }
 
         statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
+        rect.getTooltip()?.setContent(cellValue.toString());
         if (cellValue == 0) {
           popupDiv.querySelector<HTMLButtonElement>("#poke")!.innerHTML =
             "offer";

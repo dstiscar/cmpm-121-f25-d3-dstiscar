@@ -43,5 +43,5 @@ Key gameplay challenge: Can players move around the map to find matching token v
 - [x] generate new cells when as the player moves
 - [x] make cells despawn when out of range
 - [x] add minor tweaks with token value
-- [ ] add instructions on how to move
-- [ ] display token value for every cell
+- [x] add instructions on how to move
+- [x] display token value for every cell
