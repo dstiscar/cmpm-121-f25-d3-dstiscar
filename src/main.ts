@@ -19,21 +19,25 @@ const CLASSROOM_LATLNG = leaflet.latLng(
 
 const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
-const NEIGHBORHOOD_SIZE = 4;
-const CACHE_SPAWN_PROBABILITY = 0.1;
+const NEIGHBORHOOD_SIZE = 3;
+const CELL_SPAWN_PROBABILITY = 0.1;
 const MOVE_DEGREES = TILE_DEGREES;
 
-interface Pair {
-  i: number;
-  j: number;
+let playerLat = CLASSROOM_LATLNG.lat;
+let playerLng = CLASSROOM_LATLNG.lng;
+
+interface SpawnDecision {
+  key: string;
+  willSpawn: boolean;
 }
 
-const player: Pair = {
-  i: CLASSROOM_LATLNG.lat,
-  j: CLASSROOM_LATLNG.lng,
-};
+interface SpawnedCell {
+  key: string;
+  rect: leaflet.Rectangle;
+}
 
-const cells = new Set<string>();
+const spawnDecisions: SpawnDecision[] = [];
+const spawnedCells: SpawnedCell[] = [];
 
 const map = leaflet.map(mapDiv, {
   center: CLASSROOM_LATLNG,
@@ -59,17 +63,20 @@ playerMarker.addTo(map);
 let playerValue = 0;
 statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
 
-function spawnCacheAtIndex(latIndex: number, lngIndex: number) {
+function spawnCellAtIndex(latIndex: number, lngIndex: number) {
   const bounds = leaflet.latLngBounds([
     [latIndex * TILE_DEGREES, lngIndex * TILE_DEGREES],
     [(latIndex + 1) * TILE_DEGREES, (lngIndex + 1) * TILE_DEGREES],
   ]);
 
   const key = `${latIndex},${lngIndex}`;
-  let cellValue = Math.floor(luck(`${key}:initialValue`) * 100) % 10 + 1;
+  let cellValue = 2;
+  if (Math.floor(luck(`${key}:initialValue`) * 100) % 4 == 0) cellValue = 4;
 
   const rect = leaflet.rectangle(bounds);
   rect.addTo(map);
+
+  spawnedCells.push({ key, rect });
 
   rect.bindPopup(() => {
     let combine = cellValue == playerValue && cellValue > 0;
@@ -117,46 +124,61 @@ function spawnCacheAtIndex(latIndex: number, lngIndex: number) {
   });
 }
 
-function generateCaches() {
+function generateCells() {
+  const centerX = Math.floor(playerLat / TILE_DEGREES);
+  const centerY = Math.floor(playerLng / TILE_DEGREES);
+
   for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; i++) {
     for (let j = -NEIGHBORHOOD_SIZE; j < NEIGHBORHOOD_SIZE; j++) {
-      const cellX = Math.floor(player.i / TILE_DEGREES + i);
-      const cellY = Math.floor(player.j / TILE_DEGREES + j);
+      const key = `${centerX + i},${centerY + j}`;
 
-      const key = `${cellX},${cellY}`;
-
-      if (!cells.has(key)) {
-        cells.add(key);
-        if (luck(key) < CACHE_SPAWN_PROBABILITY) {
-          spawnCacheAtIndex(cellX, cellY);
-        }
+      if (!spawnDecisions.some((d) => d.key === key)) {
+        const willSpawn = luck(key) < CELL_SPAWN_PROBABILITY;
+        spawnDecisions.push({ key, willSpawn });
       }
+
+      const decision = spawnDecisions.find((d) => d.key === key);
+      if (decision?.willSpawn && !spawnedCells.some((s) => s.key === key)) {
+        spawnCellAtIndex(centerX + i, centerY + j);
+      }
+    }
+  }
+
+  for (let i = spawnedCells.length - 1; i >= 0; i--) {
+    const entry = spawnedCells[i];
+    const [xStr, yStr] = entry.key.split(",");
+
+    if (
+      Math.abs(Number(xStr) - centerX) >= NEIGHBORHOOD_SIZE ||
+      Math.abs(Number(yStr) - centerY) >= NEIGHBORHOOD_SIZE
+    ) {
+      entry.rect.remove();
+      spawnedCells.splice(i, 1);
     }
   }
 }
 
 function updatePlayerMarker() {
-  const latlng = leaflet.latLng(player.i, player.j);
+  const latlng = leaflet.latLng(playerLat, playerLng);
   playerMarker.setLatLng(latlng);
   map.panTo(latlng);
-  generateCaches();
+  generateCells();
 }
 
 globalThis.addEventListener("keydown", (e: KeyboardEvent) => {
   let handled = true;
   switch (e.key) {
     case "ArrowUp":
-      player.i += MOVE_DEGREES;
+      playerLat += MOVE_DEGREES;
       break;
     case "ArrowDown":
-      player.i -= MOVE_DEGREES;
+      playerLat -= MOVE_DEGREES;
       break;
     case "ArrowLeft":
-    case "a":
-      player.j -= MOVE_DEGREES;
+      playerLng -= MOVE_DEGREES;
       break;
     case "ArrowRight":
-      player.j += MOVE_DEGREES;
+      playerLng += MOVE_DEGREES;
       break;
     default:
       handled = false;
