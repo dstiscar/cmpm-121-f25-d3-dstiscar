@@ -40,5 +40,5 @@ Key gameplay challenge: Can players move around the map to find matching token v
 
 - [x] create a player interface
 - [x] use arrow keys to move player
+- [x] generate new cells when as the player moves
 - [ ] make cells despawn when out of range
-- [ ] generate new cells when a player moves

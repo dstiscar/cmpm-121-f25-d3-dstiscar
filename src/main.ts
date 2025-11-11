@@ -33,7 +33,7 @@ const player: Pair = {
   j: CLASSROOM_LATLNG.lng,
 };
 
-//const cells: Pair[];
+const cells = new Set<string>();
 
 const map = leaflet.map(mapDiv, {
   center: CLASSROOM_LATLNG,
@@ -59,21 +59,20 @@ playerMarker.addTo(map);
 let playerValue = 0;
 statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
 
-function spawnCache(i: number, j: number) {
-  const origin = CLASSROOM_LATLNG;
+function spawnCacheAtIndex(latIndex: number, lngIndex: number) {
   const bounds = leaflet.latLngBounds([
-    [origin.lat + i * TILE_DEGREES, origin.lng + j * TILE_DEGREES],
-    [origin.lat + (i + 1) * TILE_DEGREES, origin.lng + (j + 1) * TILE_DEGREES],
+    [latIndex * TILE_DEGREES, lngIndex * TILE_DEGREES],
+    [(latIndex + 1) * TILE_DEGREES, (lngIndex + 1) * TILE_DEGREES],
   ]);
 
-  let cellValue =
-    Math.floor(luck([i, j, "initialValue"].toString()) * 100) % 10 + 1;
+  const key = `${latIndex},${lngIndex}`;
+  let cellValue = Math.floor(luck(`${key}:initialValue`) * 100) % 10 + 1;
 
   const rect = leaflet.rectangle(bounds);
   rect.addTo(map);
 
   rect.bindPopup(() => {
-    let combine = (cellValue == playerValue) && (cellValue > 0);
+    let combine = cellValue == playerValue && cellValue > 0;
 
     const popupDiv = document.createElement("div");
     popupDiv.innerHTML =
@@ -118,10 +117,20 @@ function spawnCache(i: number, j: number) {
   });
 }
 
-for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; i++) {
-  for (let j = -NEIGHBORHOOD_SIZE; j < NEIGHBORHOOD_SIZE; j++) {
-    if (luck([i, j].toString()) < CACHE_SPAWN_PROBABILITY) {
-      spawnCache(i, j);
+function generateCaches() {
+  for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; i++) {
+    for (let j = -NEIGHBORHOOD_SIZE; j < NEIGHBORHOOD_SIZE; j++) {
+      const cellX = Math.floor(player.i / TILE_DEGREES + i);
+      const cellY = Math.floor(player.j / TILE_DEGREES + j);
+
+      const key = `${cellX},${cellY}`;
+
+      if (!cells.has(key)) {
+        cells.add(key);
+        if (luck(key) < CACHE_SPAWN_PROBABILITY) {
+          spawnCacheAtIndex(cellX, cellY);
+        }
+      }
     }
   }
 }
@@ -130,6 +139,7 @@ function updatePlayerMarker() {
   const latlng = leaflet.latLng(player.i, player.j);
   playerMarker.setLatLng(latlng);
   map.panTo(latlng);
+  generateCaches();
 }
 
 globalThis.addEventListener("keydown", (e: KeyboardEvent) => {
