@@ -54,4 +54,5 @@ Key gameplay challenge: Can players strategize where to find token values more e
 #### D3.c Steps
 
 - [x] consistent small memory when spawning cells
-- [] perserve state of modified cells
+- [x] save cell to memory if modified and remove if unmodified
+- [x] load token value into modified cell

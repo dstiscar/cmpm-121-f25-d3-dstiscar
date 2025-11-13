@@ -37,6 +37,15 @@ interface SpawnedCell {
   rect: leaflet.Rectangle;
 }
 
+interface CellData {
+  lat: number;
+  lng: number;
+  value: number;
+  initvalue: number;
+}
+
+const cellMemory: CellData[] = [];
+
 const spawnedCells: SpawnedCell[] = [];
 
 const map = leaflet.map(mapDiv, {
@@ -73,6 +82,13 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
   let cellValue = 2;
   if (Math.floor(luck(`${key}:initialValue`) * 100) % 4 == 0) cellValue = 4;
 
+  const cellIndex = cellMemory.findIndex(
+    (c) => c.lat == latIndex && c.lng == lngIndex,
+  );
+  if (cellIndex != -1) {
+    cellValue = cellMemory.at(cellIndex)!.value;
+  }
+
   const rect = leaflet.rectangle(bounds);
   rect.addTo(map);
 
@@ -103,6 +119,21 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
     popupDiv
       .querySelector<HTMLButtonElement>("#poke")!
       .addEventListener("click", () => {
+        const cellIndex = cellMemory.findIndex(
+          (c) => c.lat == latIndex && c.lng == lngIndex,
+        );
+
+        if (cellIndex == -1) {
+          cellMemory.push({
+            lat: latIndex,
+            lng: lngIndex,
+            value: cellValue,
+            initvalue: cellValue,
+          });
+        } else {
+          cellMemory.at(cellIndex)!.value = cellValue;
+        }
+
         if (combine) {
           playerValue += cellValue;
           cellValue = 0;
@@ -111,6 +142,14 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
           const temp = playerValue;
           playerValue = cellValue;
           cellValue = temp;
+        }
+
+        cellMemory.at(cellIndex)!.value = cellValue;
+
+        if (
+          cellMemory.at(cellIndex)!.value == cellMemory.at(cellIndex)!.initvalue
+        ) {
+          cellMemory.splice(cellIndex, 1);
         }
 
         statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
