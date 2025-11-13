@@ -37,7 +37,6 @@ interface SpawnedCell {
   rect: leaflet.Rectangle;
 }
 
-const spawnDecisions: SpawnDecision[] = [];
 const spawnedCells: SpawnedCell[] = [];
 
 const map = leaflet.map(mapDiv, {
@@ -134,6 +133,8 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
 function generateCells() {
   const centerX = Math.floor(playerLat / TILE_DEGREES);
   const centerY = Math.floor(playerLng / TILE_DEGREES);
+
+  const spawnDecisions: SpawnDecision[] = [];
 
   for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; i++) {
     for (let j = -NEIGHBORHOOD_SIZE; j < NEIGHBORHOOD_SIZE; j++) {

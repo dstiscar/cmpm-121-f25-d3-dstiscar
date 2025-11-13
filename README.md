@@ -45,3 +45,13 @@ Key gameplay challenge: Can players move around the map to find matching token v
 - [x] add minor tweaks with token value
 - [x] add instructions on how to move
 - [x] display token value for every cell
+
+### D3.c Object Persistence
+
+Key technical challenge: Can you store the memory of modified cells so they can persist after despawning?
+Key gameplay challenge: Can players strategize where to find token values more efficiently?
+
+#### D3.c Steps
+
+- [x] consistent small memory when spawning cells
+- [] perserve state of modified cells
