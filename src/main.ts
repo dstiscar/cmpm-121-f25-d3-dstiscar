@@ -11,7 +11,13 @@ document.body.append(mapDiv);
 const statusPanelDiv = document.createElement("div");
 statusPanelDiv.id = "statusPanel";
 document.body.append(statusPanelDiv);
-document.body.append("Arrow Keys to Move");
+
+const newGameBtn = document.createElement("button");
+newGameBtn.textContent = "New Game";
+//newGameBtn.id = "new-game";
+document.body.append(newGameBtn);
+
+//document.body.append("Arrow Keys to Move");
 
 const CLASSROOM_LATLNG = leaflet.latLng(
   36.997936938057016,
@@ -237,3 +243,15 @@ globalThis.addEventListener("keydown", (e: KeyboardEvent) => {
   }
 });
 updatePlayerMarker();
+
+newGameBtn.addEventListener("click", () => {
+  playerValue = 0;
+  spawnedCells.forEach((cell) => {
+    cell.rect.remove();
+  });
+  spawnedCells.splice(0, spawnedCells.length);
+  cellMemory.splice(0, cellMemory.length);
+
+  statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
+  generateCells();
+});

@@ -56,3 +56,16 @@ Key gameplay challenge: Can players strategize where to find token values more e
 - [x] consistent small memory when spawning cells
 - [x] save cell to memory if modified and remove if unmodified
 - [x] load token value into modified cell
+
+### D3.d Gameplay Across Real-world Space and Time
+
+Key technical challenge: Can you persist memory across page loads and track the player's movement using geolocation?
+Key gameplay challenge: Can players be given the options to start a new game and select a movement style?
+
+#### D3.d Steps
+
+- [x] add New Game button
+- [ ] persist memory after page loads
+- [ ] set player's geolocation
+- [ ] implement geolocation movement
+- [ ] add button that changes movement
