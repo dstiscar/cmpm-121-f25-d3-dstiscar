@@ -14,10 +14,7 @@ document.body.append(statusPanelDiv);
 
 const newGameBtn = document.createElement("button");
 newGameBtn.textContent = "New Game";
-//newGameBtn.id = "new-game";
 document.body.append(newGameBtn);
-
-//document.body.append("Arrow Keys to Move");
 
 const CLASSROOM_LATLNG = leaflet.latLng(
   36.997936938057016,
@@ -54,6 +51,40 @@ const cellMemory: CellData[] = [];
 
 const spawnedCells: SpawnedCell[] = [];
 
+const STORAGE_KEY = "game-state";
+
+interface PersistedState {
+  playerLat: number;
+  playerLng: number;
+  playerValue: number;
+  cellMemory: CellData[];
+}
+
+function loadState(): PersistedState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedState;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveState() {
+  try {
+    const state: PersistedState = {
+      playerLat,
+      playerLng,
+      playerValue,
+      cellMemory: cellMemory.map((c) => ({ ...c })),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // ignore
+  }
+}
+
 const map = leaflet.map(mapDiv, {
   center: CLASSROOM_LATLNG,
   zoom: GAMEPLAY_ZOOM_LEVEL,
@@ -77,6 +108,19 @@ playerMarker.addTo(map);
 
 let playerValue = 0;
 statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
+
+const s = loadState();
+if (s) {
+  playerLat = s.playerLat ?? playerLat;
+  playerLng = s.playerLng ?? playerLng;
+  playerValue = s.playerValue ?? playerValue;
+  cellMemory.splice(
+    0,
+    cellMemory.length,
+    ...s.cellMemory.map((c) => ({ ...c })),
+  );
+  statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
+}
 
 function spawnCellAtIndex(latIndex: number, lngIndex: number) {
   const bounds = leaflet.latLngBounds([
@@ -160,6 +204,9 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
 
         statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
         rect.getTooltip()?.setContent(cellValue.toString());
+
+        saveState();
+
         if (cellValue == 0) {
           popupDiv.querySelector<HTMLButtonElement>("#poke")!.innerHTML =
             "offer";
@@ -216,6 +263,7 @@ function updatePlayerMarker() {
   playerMarker.setLatLng(latlng);
   map.panTo(latlng);
   generateCells();
+  saveState();
 }
 
 globalThis.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -251,6 +299,11 @@ newGameBtn.addEventListener("click", () => {
   });
   spawnedCells.splice(0, spawnedCells.length);
   cellMemory.splice(0, cellMemory.length);
+
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch { // ignore
+  }
 
   statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
   generateCells();

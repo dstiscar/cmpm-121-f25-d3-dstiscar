@@ -65,7 +65,7 @@ Key gameplay challenge: Can players be given the options to start a new game and
 #### D3.d Steps
 
 - [x] add New Game button
-- [ ] persist memory after page loads
+- [x] persist memory after page loads
 - [ ] set player's geolocation
 - [ ] implement geolocation movement
 - [ ] add button that changes movement
