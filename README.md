@@ -66,6 +66,6 @@ Key gameplay challenge: Can players be given the options to start a new game and
 
 - [x] add New Game button
 - [x] persist memory after page loads
-- [ ] set player's geolocation
-- [ ] implement geolocation movement
+- [x] set player's geolocation
+- [x] implement geolocation movement
 - [ ] add button that changes movement

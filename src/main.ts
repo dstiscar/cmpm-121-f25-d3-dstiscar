@@ -16,19 +16,25 @@ const newGameBtn = document.createElement("button");
 newGameBtn.textContent = "New Game";
 document.body.append(newGameBtn);
 
-const CLASSROOM_LATLNG = leaflet.latLng(
-  36.997936938057016,
-  -122.05703507501151,
-);
-
 const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
 const NEIGHBORHOOD_SIZE = 3;
 const CELL_SPAWN_PROBABILITY = 0.1;
 const MOVE_DEGREES = TILE_DEGREES;
 
-let playerLat = CLASSROOM_LATLNG.lat;
-let playerLng = CLASSROOM_LATLNG.lng;
+let playerLat: number = 0;
+let playerLng: number = 0;
+
+function geoSuccess(pos: GeolocationPosition) {
+  const crd = pos.coords;
+  playerLat = crd.latitude;
+  playerLng = crd.longitude;
+  updatePlayerMarker();
+}
+function geoError(err: GeolocationPositionError) {
+  console.warn(`ERROR(${err.code}): ${err.message}`);
+}
+navigator.geolocation.watchPosition(geoSuccess, geoError);
 
 interface SpawnDecision {
   key: string;
@@ -86,7 +92,7 @@ function saveState() {
 }
 
 const map = leaflet.map(mapDiv, {
-  center: CLASSROOM_LATLNG,
+  center: leaflet.latLng(playerLat, playerLng),
   zoom: GAMEPLAY_ZOOM_LEVEL,
   minZoom: GAMEPLAY_ZOOM_LEVEL,
   maxZoom: GAMEPLAY_ZOOM_LEVEL,
@@ -102,7 +108,7 @@ leaflet
   })
   .addTo(map);
 
-const playerMarker = leaflet.marker(CLASSROOM_LATLNG);
+const playerMarker = leaflet.marker(leaflet.latLng(playerLat, playerLng));
 playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
 
