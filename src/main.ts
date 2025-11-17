@@ -158,6 +158,7 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
   let cellValue = 2;
   if (Math.floor(luck(`${key}:initialValue`) * 100) % 4 == 0) cellValue = 4;
 
+  // memento variant
   const cellIndex = cellMemory.findIndex(
     (c) => c.lat == latIndex && c.lng == lngIndex,
   );
@@ -195,6 +196,7 @@ function spawnCellAtIndex(latIndex: number, lngIndex: number) {
     popupDiv
       .querySelector<HTMLButtonElement>("#poke")!
       .addEventListener("click", () => {
+        // flyweight variant
         const cellIndex = cellMemory.findIndex(
           (c) => c.lat == latIndex && c.lng == lngIndex,
         );
