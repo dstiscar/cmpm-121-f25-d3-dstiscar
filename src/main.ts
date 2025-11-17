@@ -12,6 +12,18 @@ const statusPanelDiv = document.createElement("div");
 statusPanelDiv.id = "statusPanel";
 document.body.append(statusPanelDiv);
 
+document.body.append("Arrow Keys to Desync Geolocation");
+
+document.body.append(document.createElement("br"));
+
+const syncBtn = document.createElement("button");
+syncBtn.textContent = "Resync to Geolocation";
+syncBtn.disabled = true;
+document.body.append(syncBtn);
+
+document.body.append(document.createElement("br"));
+document.body.append(document.createElement("br"));
+
 const newGameBtn = document.createElement("button");
 newGameBtn.textContent = "New Game";
 document.body.append(newGameBtn);
@@ -24,17 +36,22 @@ const MOVE_DEGREES = TILE_DEGREES;
 
 let playerLat: number = 0;
 let playerLng: number = 0;
+let geoSync: boolean = true;
 
 function geoSuccess(pos: GeolocationPosition) {
-  const crd = pos.coords;
-  playerLat = crd.latitude;
-  playerLng = crd.longitude;
-  updatePlayerMarker();
+  if (geoSync) {
+    const crd = pos.coords;
+    playerLat = crd.latitude;
+    playerLng = crd.longitude;
+    updatePlayerMarker();
+  } else {
+    syncBtn.disabled = false;
+  }
 }
 function geoError(err: GeolocationPositionError) {
   console.warn(`ERROR(${err.code}): ${err.message}`);
 }
-navigator.geolocation.watchPosition(geoSuccess, geoError);
+let geoid = navigator.geolocation.watchPosition(geoSuccess, geoError);
 
 interface SpawnDecision {
   key: string;
@@ -64,6 +81,7 @@ interface PersistedState {
   playerLng: number;
   playerValue: number;
   cellMemory: CellData[];
+  geoSync: boolean;
 }
 
 function loadState(): PersistedState | null {
@@ -84,6 +102,7 @@ function saveState() {
       playerLng,
       playerValue,
       cellMemory: cellMemory.map((c) => ({ ...c })),
+      geoSync,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
@@ -120,6 +139,7 @@ if (s) {
   playerLat = s.playerLat ?? playerLat;
   playerLng = s.playerLng ?? playerLng;
   playerValue = s.playerValue ?? playerValue;
+  geoSync = s.geoSync ?? geoSync;
   cellMemory.splice(
     0,
     cellMemory.length,
@@ -273,6 +293,9 @@ function updatePlayerMarker() {
 }
 
 globalThis.addEventListener("keydown", (e: KeyboardEvent) => {
+  geoSync = false;
+  syncBtn.disabled = false;
+
   let handled = true;
   switch (e.key) {
     case "ArrowUp":
@@ -298,6 +321,14 @@ globalThis.addEventListener("keydown", (e: KeyboardEvent) => {
 });
 updatePlayerMarker();
 
+syncBtn.addEventListener("click", () => {
+  geoSync = true;
+  syncBtn.disabled = true;
+
+  navigator.geolocation.clearWatch(geoid);
+  geoid = navigator.geolocation.watchPosition(geoSuccess, geoError);
+});
+
 newGameBtn.addEventListener("click", () => {
   playerValue = 0;
   spawnedCells.forEach((cell) => {
@@ -313,4 +344,9 @@ newGameBtn.addEventListener("click", () => {
 
   statusPanelDiv.innerHTML = `Your token value: ${playerValue}`;
   generateCells();
+
+  syncBtn.disabled = true;
+  geoSync = true;
+  navigator.geolocation.clearWatch(geoid);
+  geoid = navigator.geolocation.watchPosition(geoSuccess, geoError);
 });
